@@ -25,6 +25,7 @@ module.exports = function(Blockly) {
 		BLECharacteristic* psdiCharacteristic;
 		BLECharacteristic* writeCharacteristic;
 		BLECharacteristic* notifyCharacteristic;
+		BLEService* envService;
 
 		bool deviceConnected = false;
 		bool oldDeviceConnected = false;
@@ -127,15 +128,38 @@ module.exports = function(Blockly) {
       "CHARACTERISTIC_BLOCKS"
     );
     // TODO: Assemble JavaScript into code variable.
-    var code = "...;\n";
+    var code = `${statements_characteristic_blocks}`;
     return code;
   };
 
   Blockly.JavaScript["create_characteristic_block"] = function(block) {
+    var text_assigned_number = block.getFieldValue("ASSIGNED_NUMBER");
+    var text_format = block.getFieldValue("FORMAT");
     var text_characteristic_name = block.getFieldValue("CHARACTERISTIC_NAME");
-    var text_characteristic_value = block.getFieldValue("CHARACTERISTIC_VALUE");
+    var variable_variable = Blockly.JavaScript.variableDB_.getName(
+      block.getFieldValue("VARIABLE"),
+      Blockly.Variables.NAME_TYPE
+    );
     // TODO: Assemble JavaScript into code variable.
-    var code = "...;\n";
+    var format = "";
+    if (text_format == "UINT16") {
+      format = "uint16_t";
+    }
+
+    var code = `
+    #EXTINC
+	
+	// Start hard code
+    #define ENVIRONMENTAL_SENSING_SERVICE_UUID 0x181A
+    // End hard code
+    BLECharacteristic* ${text_characteristic_name};
+    #END
+    
+    envService = thingsServer->createService(BLEUUID((uint16_t) ENVIRONMENTAL_SENSING_SERVICE_UUID));
+    ${text_characteristic_name}->setValue((${format}&) ${variable_variable});
+    ${text_characteristic_name} = envService->createCharacteristic(BLEUUID((uint16_t) ${text_assigned_number}), BLECharacteristic::PROPERTY_READ);
+  	${text_characteristic_name}->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED);
+    `;
     return code;
   };
 
@@ -210,6 +234,10 @@ module.exports = function(Blockly) {
   };
 
   Blockly.JavaScript["setup_services_block"] = function(block) {
+    var statements_setup_services = Blockly.JavaScript.statementToCode(
+      block,
+      "SETUP_SERVICES"
+    );
     // TODO: Assemble JavaScript into code variable.
     var code = `
 	#FUNCTION
@@ -224,6 +252,8 @@ module.exports = function(Blockly) {
 		  writeCharacteristic = userService->createCharacteristic(WRITE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
 		  writeCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
 		  writeCharacteristic->setCallbacks(new writeCallback());
+
+		  ${statements_setup_services}
 
 		  notifyCharacteristic = userService->createCharacteristic(NOTIFY_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_NOTIFY);
 		  notifyCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
