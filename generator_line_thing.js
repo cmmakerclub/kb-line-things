@@ -1,11 +1,12 @@
 module.exports = function(Blockly) {
-  "use strict";
+  // "use strict";
 
   Blockly.JavaScript["line_things_block"] = function(block) {
     var statements_line_things_block = Blockly.JavaScript.statementToCode(
       block,
       "LINE_THINGS_BLOCK"
     );
+    var text_device_name = block.getFieldValue("DEVICE_NAME");
     // TODO: Assemble JavaScript into code variable.
 
     var code = `
@@ -14,9 +15,11 @@ module.exports = function(Blockly) {
 		#include <BLEDevice.h>
 		#include <BLEUtils.h>
 		#include <BLE2902.h>
-
+		
+		#define DEVICE_NAME "${text_device_name}"
 		#define BUTTON 0
 		#define LED1 16
+		#define Number int
 
 		BLEServer* thingsServer;
 		BLESecurity *thingsSecurity;
@@ -25,7 +28,6 @@ module.exports = function(Blockly) {
 		BLECharacteristic* psdiCharacteristic;
 		BLECharacteristic* writeCharacteristic;
 		BLECharacteristic* notifyCharacteristic;
-		BLEService* envService;
 
 		bool deviceConnected = false;
 		bool oldDeviceConnected = false;
@@ -33,8 +35,8 @@ module.exports = function(Blockly) {
 		volatile int btnAction = 0;
 
 		// User service characteristics
-		#define WRITE_CHARACTERISTIC_UUID "E9062E71-9E62-4BC6-B0D3-35CDCD9B027B"
-		#define NOTIFY_CHARACTERISTIC_UUID "62FBD229-6EDD-4D1A-B554-5C4E1BB29169"
+		// #define WRITE_CHARACTERISTIC_UUID "E9062E71-9E62-4BC6-B0D3-35CDCD9B027B"
+		// #define NOTIFY_CHARACTERISTIC_UUID "62FBD229-6EDD-4D1A-B554-5C4E1BB29169"
 	#END
 	#FUNCTION
 		class serverCallbacks: public BLEServerCallbacks {
@@ -71,19 +73,6 @@ module.exports = function(Blockly) {
     return code;
   };
 
-  Blockly.JavaScript["device_name_block"] = function(block) {
-    var text_device_name = block.getFieldValue("DEVICE_NAME");
-    // TODO: Assemble JavaScript into code variable.
-
-    var code = `
-	#EXTINC
-		// Device Name: Maximum 30 bytes
-		#define DEVICE_NAME "${text_device_name}"
-	#END
-    `;
-    return code;
-  };
-
   Blockly.JavaScript["user_service_uuid_block"] = function(block) {
     var text_user_service_uuid = block.getFieldValue("USER_SERVICE_UUID");
     // TODO: Assemble JavaScript into code variable.
@@ -98,17 +87,6 @@ module.exports = function(Blockly) {
 
   Blockly.JavaScript["psdi_service_uuid_block"] = function(block) {
     var text_psdi_service_uuid = block.getFieldValue("PSDI_SERVICE_UUID");
-    // TODO: Assemble JavaScript into code variable.
-    var code = `
-	#EXTINC
-		// PSDI Service UUID: Fixed value for Developer Trial
-		#define PSDI_SERVICE_UUID "${text_psdi_service_uuid}"
-	#END
-    `;
-    return code;
-  };
-
-  Blockly.JavaScript["psdi_characteristic_uuid_block"] = function(block) {
     var text_psdi_characteristic_uuid = block.getFieldValue(
       "PSDI_CHARACTERISTIC_UUID"
     );
@@ -116,6 +94,7 @@ module.exports = function(Blockly) {
     var code = `
 	#EXTINC
 		// PSDI Service UUID: Fixed value for Developer Trial
+		#define PSDI_SERVICE_UUID "${text_psdi_service_uuid}"
 		#define PSDI_CHARACTERISTIC_UUID "${text_psdi_characteristic_uuid}"
 	#END
     `;
@@ -123,12 +102,22 @@ module.exports = function(Blockly) {
   };
 
   Blockly.JavaScript["characteristic_blocks"] = function(block) {
+    var text_gatt_service = block.getFieldValue("GATT_SERVICE");
     var statements_characteristic_blocks = Blockly.JavaScript.statementToCode(
       block,
       "CHARACTERISTIC_BLOCKS"
     );
     // TODO: Assemble JavaScript into code variable.
-    var code = `${statements_characteristic_blocks}`;
+
+    var code = `
+    #EXTINC
+		#define SERVICE_UUID_${text_gatt_service} ${text_gatt_service}
+    BLEService* envService_${text_gatt_service};
+    #END
+    ${statements_characteristic_blocks}
+    envService_${text_gatt_service}->start();
+    `;
+
     return code;
   };
 
@@ -140,26 +129,22 @@ module.exports = function(Blockly) {
       block.getFieldValue("VARIABLE"),
       Blockly.Variables.NAME_TYPE
     );
+    var GATT_SERVICE = block.getSurroundParent().getFieldValue("GATT_SERVICE");
+    var envService = `envService_${GATT_SERVICE}`;
     // TODO: Assemble JavaScript into code variable.
-    var format = "";
-    if (text_format == "UINT16") {
-      format = "uint16_t";
-    }
 
     var code = `
-    #EXTINC
-	
-	// Start hard code
-    #define ENVIRONMENTAL_SENSING_SERVICE_UUID 0x181A
-    // End hard code
+    #VARIABLE
     BLECharacteristic* ${text_characteristic_name};
     #END
     
-    envService = thingsServer->createService(BLEUUID((uint16_t) ENVIRONMENTAL_SENSING_SERVICE_UUID));
-    ${text_characteristic_name}->setValue((${format}&) ${variable_variable});
-    ${text_characteristic_name} = envService->createCharacteristic(BLEUUID((uint16_t) ${text_assigned_number}), BLECharacteristic::PROPERTY_READ);
+    ${envService} = thingsServer->createService(BLEUUID((uint16_t) ${GATT_SERVICE}));
+    ${text_characteristic_name} = ${envService}->createCharacteristic(BLEUUID((uint16_t) ${text_assigned_number}), BLECharacteristic::PROPERTY_READ);
   	${text_characteristic_name}->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED);
     `;
+
+    // console.log(block.getSurroundParent().getFieldValue("GATT_SERVICE"));
+
     return code;
   };
 
@@ -248,32 +233,21 @@ module.exports = function(Blockly) {
 
 		  // Setup User Service
 		  userService = thingsServer->createService(USER_SERVICE_UUID);
-		  // Create Characteristics for User Service
-		  writeCharacteristic = userService->createCharacteristic(WRITE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
-		  writeCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-		  writeCharacteristic->setCallbacks(new writeCallback());
+
+      // Setup PSDI Service
+      psdiService = thingsServer->createService(PSDI_SERVICE_UUID);
+      psdiCharacteristic = psdiService->createCharacteristic(PSDI_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
+      psdiCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
+
+      // Set PSDI (Product Specific Device ID) value
+      uint64_t macAddress = ESP.getEfuseMac();
+      psdiCharacteristic->setValue((uint8_t*) &macAddress, sizeof(macAddress));
+
+      // Start BLE Services
+      userService->start();
+      psdiService->start();
 
 		  ${statements_setup_services}
-
-		  notifyCharacteristic = userService->createCharacteristic(NOTIFY_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_NOTIFY);
-		  notifyCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-		  BLE2902* ble9202 = new BLE2902();
-		  ble9202->setNotifications(true);
-		  ble9202->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-		  notifyCharacteristic->addDescriptor(ble9202);
-
-		  // Setup PSDI Service
-		  psdiService = thingsServer->createService(PSDI_SERVICE_UUID);
-		  psdiCharacteristic = psdiService->createCharacteristic(PSDI_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
-		  psdiCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-
-		  // Set PSDI (Product Specific Device ID) value
-		  uint64_t macAddress = ESP.getEfuseMac();
-		  psdiCharacteristic->setValue((uint8_t*) &macAddress, sizeof(macAddress));
-
-		  // Start BLE Services
-		  userService->start();
-		  psdiService->start();
 		}
 	#END
     `;
@@ -300,6 +274,26 @@ module.exports = function(Blockly) {
 		}
 	#END
     `;
+    return code;
+  };
+
+  Blockly.JavaScript["sync_data_characteristic_block"] = function(block) {
+    var text_characteristic_name = block.getFieldValue("CHARACTERISTIC_NAME");
+    var text_format = block.getFieldValue("FORMAT");
+    var variable_variable = Blockly.JavaScript.variableDB_.getName(
+      block.getFieldValue("VARIABLE"),
+      Blockly.Variables.NAME_TYPE
+    );
+    // TODO: Assemble JavaScript into code variable.
+    var format = "";
+    if (text_format == "UINT16_T") {
+      format = "uint16_t";
+    }
+
+    var code = `
+    ${text_characteristic_name}->setValue((${format}&) ${variable_variable});
+    `;
+
     return code;
   };
 };

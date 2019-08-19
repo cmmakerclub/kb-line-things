@@ -11,20 +11,18 @@ module.exports = {
       icon: "https://image.flaticon.com/icons/svg/124/124027.svg",
       blocks: [
         "line_things_block",
-        "device_name_block",
         "user_service_uuid_block",
         "psdi_service_uuid_block",
-        "psdi_characteristic_uuid_block",
+        "setup_services_block",
         "characteristic_blocks",
         "create_characteristic_block",
         "ble_characteristic_callbacks_block",
         "ble_message_receive_block",
         "ble_device_connection_block",
         "ble_device_disconnection_block",
-        "setup_services_block",
-        "start_advertising_block"
+        "start_advertising_block",
+        "sync_data_characteristic_block"
       ]
     },
-    
   ]
 };

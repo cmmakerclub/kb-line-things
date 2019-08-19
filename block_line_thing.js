@@ -14,22 +14,16 @@ module.exports = function(Blockly) {
           )
         )
         .appendField("LINE THINGS");
-      this.setPreviousStatement(true, null);
-      this.setNextStatement(true, null);
-      this.setColour(230);
-      this.setTooltip("");
-      this.setHelpUrl("");
-    }
-  };
-
-  Blockly.Blocks["device_name_block"] = {
-    init: function() {
       this.appendDummyInput()
+        .appendField(new Blockly.FieldImage("", 24, 24, "*"))
         .appendField("DEVICE NAME")
-        .appendField(new Blockly.FieldTextInput(""), "DEVICE_NAME");
+        .appendField(
+          new Blockly.FieldTextInput("LINE-THING-001"),
+          "DEVICE_NAME"
+        );
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
-      this.setColour(230);
+      this.setColour(120);
       this.setTooltip("");
       this.setHelpUrl("");
     }
@@ -59,16 +53,6 @@ module.exports = function(Blockly) {
           new Blockly.FieldTextInput("e625601e-9e55-4597-a598-76018a0d293d"),
           "PSDI_SERVICE_UUID"
         );
-      this.setPreviousStatement(true, null);
-      this.setNextStatement(true, null);
-      this.setColour(230);
-      this.setTooltip("");
-      this.setHelpUrl("");
-    }
-  };
-
-  Blockly.Blocks["psdi_characteristic_uuid_block"] = {
-    init: function() {
       this.appendDummyInput()
         .appendField("PSDI CHARACTERISTIC UUID")
         .appendField(
@@ -85,84 +69,41 @@ module.exports = function(Blockly) {
 
   Blockly.Blocks["characteristic_blocks"] = {
     init: function() {
+      this.appendDummyInput()
+        .appendField("GATT SERVICE")
+        .appendField(new Blockly.FieldTextInput("0x181A"), "GATT_SERVICE");
       this.appendStatementInput("CHARACTERISTIC_BLOCKS")
         .setCheck(null)
         .appendField("CHARACTERISTIC BLOCKS");
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
-      this.setColour(290);
+      this.setColour(230);
       this.setTooltip("");
       this.setHelpUrl("");
     }
   };
-
-  // Blockly.Blocks["create_characteristic_block"] = {
-  //   init: function() {
-  //     this.appendDummyInput().appendField("CREATE CHARACTERISTIC");
-  //     this.appendDummyInput()
-  //       .appendField("ASSIGNED NUMBER")
-  //       .appendField(new Blockly.FieldTextInput("0x0000"), "ASSIGNED_NUMBER");
-  //     this.appendDummyInput()
-  //       .appendField("FORMAT")
-  //       .appendField(new Blockly.FieldTextInput("UINT16"), "FORMAT");
-  //     this.appendDummyInput()
-  //       .appendField("NAME")
-  //       .appendField(new Blockly.FieldTextInput(""), "CHARACTERISTIC_NAME");
-  //     this.appendDummyInput()
-  //       .appendField("SET VALUE")
-  //       .appendField(new Blockly.FieldVariable("VARIABLE"), "VARIABLE");
-  //     this.setPreviousStatement(true, null);
-  //     this.setNextStatement(true, null);
-  //     this.setColour(290);
-  //     this.setTooltip("");
-  //     this.setHelpUrl("");
-  //   }
-  // };
-
-  // Blockly.Blocks["create_characteristic_block"] = {
-  //   init: function() {
-  //     this.appendDummyInput().appendField("CREATE CHARACTERISTIC");
-  //     this.appendDummyInput()
-  //       .appendField("ASSIGNED NUMBER")
-  //       .appendField(new Blockly.FieldTextInput("0x2A6E"), "ASSIGNED_NUMBER");
-  //     this.appendDummyInput()
-  //       .appendField("FORMAT")
-  //       .appendField(new Blockly.FieldTextInput("UINT16"), "FORMAT");
-  //     this.appendDummyInput()
-  //       .appendField("NAME")
-  //       .appendField(
-  //         new Blockly.FieldTextInput("temperatureCharacteristic"),
-  //         "CHARACTERISTIC_NAME"
-  //       );
-  //     this.appendDummyInput()
-  //       .appendField("SET VALUE")
-  //       .appendField(new Blockly.FieldVariable("VARIABLE"), "VARIABLE");
-  //     this.setPreviousStatement(true, null);
-  //     this.setNextStatement(true, null);
-  //     this.setColour(290);
-  //     this.setTooltip("");
-  //     this.setHelpUrl("");
-  //   }
-  // };
 
   Blockly.Blocks["create_characteristic_block"] = {
     init: function() {
       this.appendDummyInput().appendField("CREATE CHARACTERISTIC");
       this.appendDummyInput()
         .appendField("ASSIGNED NUMBER")
-        .appendField(new Blockly.FieldTextInput("0x0000"), "ASSIGNED_NUMBER");
+        .appendField(new Blockly.FieldTextInput("0x2A6E"), "ASSIGNED_NUMBER");
       this.appendDummyInput()
         .appendField("FORMAT")
-        .appendField(new Blockly.FieldTextInput("UINT16"), "FORMAT");
+        .appendField(new Blockly.FieldTextInput("UINT16_T"), "FORMAT");
       this.appendDummyInput()
         .appendField("NAME")
-        .appendField(new Blockly.FieldTextInput(""), "CHARACTERISTIC_NAME");
+        .appendField(
+          new Blockly.FieldTextInput("TEMPERATURE_CHARACTERISTIC"),
+          "CHARACTERISTIC_NAME"
+        );
       this.appendDummyInput()
-        .appendField("SET VALUE")
-        .appendField(new Blockly.FieldVariable("VARIABLE"), "VARIABLE");
+        .appendField("VARIABLE")
+        .appendField(new Blockly.FieldVariable("temperatureValue"), "VARIABLE");
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
-      this.setColour(290);
+      this.setColour(230);
       this.setTooltip("");
       this.setHelpUrl("");
     }
@@ -175,7 +116,7 @@ module.exports = function(Blockly) {
         .appendField("BLE CHARACTERISTIC CALLBACKS");
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
-      this.setColour(120);
+      this.setColour(290);
       this.setTooltip("");
       this.setHelpUrl("");
     }
@@ -251,6 +192,29 @@ module.exports = function(Blockly) {
   Blockly.Blocks["start_advertising_block"] = {
     init: function() {
       this.appendDummyInput().appendField("START ADVERTISING");
+      this.setPreviousStatement(true, null);
+      this.setNextStatement(true, null);
+      this.setColour(230);
+      this.setTooltip("");
+      this.setHelpUrl("");
+    }
+  };
+
+  Blockly.Blocks["sync_data_characteristic_block"] = {
+    init: function() {
+      this.appendDummyInput().appendField("SYNC DATA");
+      this.appendDummyInput()
+        .appendField("CHARACTERISTIC NAME")
+        .appendField(
+          new Blockly.FieldTextInput("TEMPERATURE_CHARACTERISTIC"),
+          "CHARACTERISTIC_NAME"
+        );
+      this.appendDummyInput()
+        .appendField("FORMAT")
+        .appendField(new Blockly.FieldTextInput("UINT16_T"), "FORMAT");
+      this.appendDummyInput()
+        .appendField("VARIABLE")
+        .appendField(new Blockly.FieldVariable("temperatureValue"), "VARIABLE");
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(230);
