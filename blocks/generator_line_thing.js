@@ -126,21 +126,26 @@ Blockly.JavaScript["create_characteristic_block"] = function(block) {
     block.getFieldValue("VARIABLE"),
     Blockly.Variables.NAME_TYPE
   );
-  var GATT_SERVICE = block.getSurroundParent().getFieldValue("GATT_SERVICE");
-  var envService = `envService_${GATT_SERVICE}`;
-  // TODO: Assemble JavaScript into code variable.
 
-  var code = `
+  var code = ``;
+  try {
+    var GATT_SERVICE = block.getSurroundParent().getFieldValue("GATT_SERVICE");
+    var envService = `envService_${GATT_SERVICE}`;
+    // TODO: Assemble JavaScript into code variable.
+
+    code = `
   #VARIABLE
   BLECharacteristic* ${text_characteristic_name};
   #END
   
   ${envService} = thingsServer->createService(BLEUUID((uint16_t) ${GATT_SERVICE}));
   ${text_characteristic_name} = ${envService}->createCharacteristic(BLEUUID((uint16_t) ${text_assigned_number}), BLECharacteristic::PROPERTY_READ);
-	${text_characteristic_name}->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED);
+  ${text_characteristic_name}->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED);
   `;
-
-  // console.log(block.getSurroundParent().getFieldValue("GATT_SERVICE"));
+    // console.log(block.getSurroundParent().getFieldValue("GATT_SERVICE"));
+  } catch (err) {
+    console.log(err);
+  }
 
   return code;
 };
@@ -293,4 +298,3 @@ Blockly.JavaScript["sync_data_characteristic_block"] = function(block) {
 
   return code;
 };
-

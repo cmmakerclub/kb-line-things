@@ -9,7 +9,7 @@
   "author": "Prawared Bowonphattharawadi",
   "email": "prawared.bw@gmail.com",
   "url": "https://github.com/cmmakerclub/kb-line-things/",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "board": "",
   "platform": ["arduino-esp32"],
   "image": "/static/display.jpg"
