@@ -12,5 +12,5 @@
   "version": "1.0.1",
   "board": "",
   "platform": ["arduino-esp32"],
-  "image": "/static/display.svg"
+  "image": "/static/display.jpg"
 }
