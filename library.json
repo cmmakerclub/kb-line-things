@@ -8,11 +8,9 @@
   "git": "https://github.com/Gr4vity4/kb-line-things/",
   "author": "Prawared Bowonphattharawadi",
   "email": "prawared.bw@gmail.com",
-  "url": "https://kbide.org/",
+  "url": "https://github.com/Gr4vity4/kb-line-things/",
   "version": "1.0.0",
   "board": "",
-  "platform": [
-    "arduino-esp32"
-  ],
+  "platform": ["arduino-esp32"],
   "image": "/static/display.svg"
 }
